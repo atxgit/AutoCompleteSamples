@@ -1,0 +1,129 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <script src="Scripts/angular.min.js"></script>
+    <script>
+        var myFirstModule = angular.module('acModule', []);
+
+        myFirstModule.controller('acController', function ($q, $scope, $http) {
+            $scope.quantity = 1;
+            $scope.price = 10;
+            $scope.tagTextBox = '';
+
+            $scope.calculate = function (xval, yval) {
+                $scope.price = xval * yval;
+            }
+
+            $scope.suggestedValues = [];
+
+            var autoCompleteCanceler;
+
+            $scope.autoComplete = function () {
+                if (autoCompleteCanceler) { autoCompleteCanceler.resolve(); }
+
+                autoCompleteCanceler = $q.defer();
+
+                $http.get('/api/ValuesAPI?term=' + $scope.tagTextBox, { timeout: autoCompleteCanceler.promise }).
+                    success(function (data, status, headers, config) {
+                        // this callback will be called asynchronously
+                        // when the response is available
+                        $scope.suggestedValues = data;
+                    }).
+                    error(function (data, status, headers, config) {
+                        // called asynchronously if an error occurs
+                        // or server returns response with an error status.
+                        if (data != null) {
+                            $scope.suggestedValues = [];
+                        } else {
+                            var blah = 'test';
+                        }
+                    });
+
+            }
+        });
+
+
+        
+        
+        // later...
+        
+
+    </script>
+</head>
+<body ng-app="acModule">
+    <div ng-controller="acController">
+        <input type="text" ng-model="tagTextBox" ng-change="autoComplete()" />
+        <ul ng-model="suggestedValues">
+            <li ng-repeat="value in suggestedValues"> {{ value }} </li>
+        </ul>
+
+
+        <input type="text" ng-model="quantity" />
+        <button ng-click="calculate(quantity,price)">Calculate</button>
+        <h2>${{price}}</h2>
+
+    </div>
+
+    <style>
+        #testTagDiv {
+            position:absolute;
+            top:200px;
+            left:300px;
+            background-color:gray;
+        }
+        .tagCircle {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+        }
+        #testTagDiv ul {
+            position: relative;
+            top: 50px;
+            left: 100px;
+            list-style-type: none;
+            margin:0px;
+            padding:0px;
+        }
+        #testTagDiv ul li {
+            background-color: darkgray;
+            
+        }
+        .ImageBubbleLabel {
+            position: absolute;
+            left: 80px;
+            top: 20px;
+            width:200px;
+            background-color: red;
+        }
+
+        .ImageBubble {
+            position: relative;
+            border-radius: 50px;
+            border: solid blue 2px;
+            width:60px;
+            height:60px;
+            overflow: hidden;
+        }
+        .ImageBubble img {
+            position: relative;
+            width: 100%;
+            height: 100%; 
+        }
+         
+
+    </style>
+    <div id="testTagDiv">
+        <img class="tagCircle" src="http://hillbox.com//photomosaic/TagCircleLarge.png" />
+            <ul>
+                <li>                   
+                    <div class="ImageBubble">
+                        <img src="http://hillbox.com/photomosaic/PhotoMosaicImgHost.aspx?i=%5c%5cjophiel%5cd%24%5cPhotographs%5c2013%5c2013-12%5c2013-12-30_InThePark%5cIMG_5843.JPG&w=100&h=85" />
+                    </div>
+                    <div class="ImageBubbleLabel">Text Text</div>
+                </li>
+
+        
+    <div>
+</body>
+</html>
