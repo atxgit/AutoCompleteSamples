@@ -1,0 +1,152 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Sliding Nav JQuery Example</title>
+
+    <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+    <script src="http://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+    <script src="jquery.ui.touch-punch.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+
+
+    <style>
+
+        body {
+            font-family: Verdana;
+            font-size: 1.25em;
+            padding: 0px; 
+            margin:0px;
+        }
+
+        #pageFrame {
+            width:100%;
+            height:1136px;
+            background-color:gray;
+        }
+
+        .menuTick {
+            background-color: gray;
+            width: 5px;
+            height: 3px;
+            position: absolute;
+            left: 50%;
+            top: 52px;;
+        }
+        
+        .slidingMenu {
+            width: 100%;
+            height: 40px;
+            background-color: black;
+            color: white;
+            overflow: hidden;
+            padding-top: 15px;
+        }
+
+        .slidingMenuItems {
+            margin: 0px;
+            padding: 0px;
+            WIDTH: 1600px;
+            text-space-collapse: collapse;
+        }
+
+        .slidingMenuItems li {
+            list-style-type: none;
+            height: 100%;
+            width: 150px;
+            text-align: center;
+            float: left;
+            cursor:pointer;
+        }
+    </style>
+
+    <script>
+        $(document).ready(function () {
+            snapToMenuItem(1);
+
+            $(".slidingMenuItems li").click(function () {
+                clickHandler($(this));
+            });
+
+        });
+
+        // -- hack to prevent click and dragg from crossing - there is a better way -
+        var isDragging = false;
+
+        function clickHandler(item) {
+            if (!isDragging) {
+                var target = item.index();
+                snapToMenuItem(target);
+            }
+        }
+
+        $(function () {
+            $(".slidingMenuItems").draggable({ axis: "x", delay: 100, 
+                start: function () {
+                    isDragging = true;
+                },
+                stop: function () {
+                    snapToMenuItem(calculateSnap());
+                }
+            });
+        });
+
+        function calculateSnap() {
+            var menuWidth = $('.slidingMenu').width();
+            var itemWidth = $('.slidingMenuItems').children()[1].clientWidth;
+            var menuLeft = parseInt($('.slidingMenuItems').css("left"), 10);
+
+            var snapMenuItemTarget = Math.floor(((menuWidth / 2 - menuLeft) / itemWidth))
+
+            // -- constrain snap --
+            snapMenuItemTarget = Math.max(snapMenuItemTarget, 0);
+            snapMenuItemTarget = Math.min(snapMenuItemTarget, $('.slidingMenuItems li').size()-1 );
+
+            return snapMenuItemTarget;
+        }
+
+        function snapToMenuItem(snapMenuItemTarget) {
+            // -- get the width of the menu and a menu item --
+            var menuWidth = $('.slidingMenu').width();
+            var itemWidth = $('.slidingMenuItems').children()[1].clientWidth;
+
+            // -- calculate the left position for the menu given the selected menu item ==
+            var targetLeftPosition = ((menuWidth - itemWidth) / 2) - (itemWidth * (snapMenuItemTarget));
+
+            // -- set the color of all menu items to white ---
+            $(".slidingMenuItems li").each(function (index) {
+                $(this).css('color', '#ffffff');
+            });
+
+
+            // -- update the ui - animate the menu and set the colors ---
+            $(".slidingMenuItems").animate({ left: targetLeftPosition + "px" }, {
+                easing: 'easeInOutCubic',
+                complete: function () {
+                    // -- get the menu item color (bgc) from the HTML5 data attribute ---
+                    var itemColor = $(".slidingMenuItems li").eq(snapMenuItemTarget).data('bgc');
+                    $(".slidingMenuItems li").eq(snapMenuItemTarget).css('color', itemColor);
+                    $("#pageFrame").css('background-color', itemColor);
+                    $(".menuTick").css('background-color', itemColor);
+                    isDragging = false; //setTimeout(function () { isDragging = false; }, 1000);
+                }
+            });// easeInQuart
+            
+        }
+    </script>
+</head>
+<body>
+    <div id="pageFrame">
+        <img class="menuTick" src=tick.png>
+        <div class="slidingMenu">             
+            <ul class="slidingMenuItems">
+                <li data-bgc="Crimson">Precision</li>
+                <li data-bgc="DarkSlateBlue">Latitude</li>
+                <li data-bgc="Tomato">Optiplex</li>
+                <li data-bgc="YellowGreen">Inspiron</li>
+                <li data-bgc="DarkSlateGray">Alienware</li>
+                <li data-bgc="Purple">Studio XPS</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
