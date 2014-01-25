@@ -5,6 +5,8 @@
 
     <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
     <script src="http://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+    <script src="http://code.jquery.com/mobile/1.4.0/jquery.mobile-1.4.0.min.js"></script>
+
     <script src="jquery.ui.touch-punch.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
 
@@ -24,16 +26,28 @@
             background-color:gray;
         }
 
+        #pageFrameStripe {
+            width: 100%;
+            height: 15px;
+            background-color: black;
+            opacity: 0.3;
+            position: absolute;
+            top:100px;
+        }
+
         .menuTick {
             background-color: gray;
             width: 5px;
             height: 3px;
-            position: absolute;
+            position: fixed;
             left: 50%;
-            top: 52px;;
+            top: 52px;
+            z-index: 101;
         }
-        
+
         .slidingMenu {
+            position: fixed;
+            z-index: 100;
             width: 100%;
             height: 40px;
             background-color: black;
@@ -61,12 +75,29 @@
 
     <script>
         $(document).ready(function () {
-            snapToMenuItem(1);
+            snapToMenuItem(2);
 
             $(".slidingMenuItems li").click(function () {
                 clickHandler($(this));
             });
 
+            $('#pageFrame').bind("swipeleft", function () {
+                snapToMenuItem(calculateSnap(1));
+            });
+            $('#pageFrame').bind("swiperight", function () {
+                snapToMenuItem(calculateSnap(-1));
+            });
+
+
+            $(".slidingMenuItems").draggable({
+                axis: "x", delay: 100,
+                start: function () {
+                    isDragging = true;
+                },
+                stop: function () {
+                    snapToMenuItem(calculateSnap(0));
+                }
+            });
         });
 
         // -- hack to prevent click and dragg from crossing - there is a better way -
@@ -78,24 +109,15 @@
                 snapToMenuItem(target);
             }
         }
-
-        $(function () {
-            $(".slidingMenuItems").draggable({ axis: "x", delay: 100, 
-                start: function () {
-                    isDragging = true;
-                },
-                stop: function () {
-                    snapToMenuItem(calculateSnap());
-                }
-            });
-        });
-
-        function calculateSnap() {
+        
+        function calculateSnap( delta ) {
             var menuWidth = $('.slidingMenu').width();
             var itemWidth = $('.slidingMenuItems').children()[1].clientWidth;
             var menuLeft = parseInt($('.slidingMenuItems').css("left"), 10);
 
-            var snapMenuItemTarget = Math.floor(((menuWidth / 2 - menuLeft) / itemWidth))
+            var snapMenuItemTarget = Math.floor(((menuWidth / 2 - menuLeft) / itemWidth)) 
+
+            snapMenuItemTarget += delta;
 
             // -- constrain snap --
             snapMenuItemTarget = Math.max(snapMenuItemTarget, 0);
@@ -127,7 +149,7 @@
                     $(".slidingMenuItems li").eq(snapMenuItemTarget).css('color', itemColor);
                     $("#pageFrame").css('background-color', itemColor);
                     $(".menuTick").css('background-color', itemColor);
-                    isDragging = false; //setTimeout(function () { isDragging = false; }, 1000);
+                    isDragging = false; 
                 }
             });// easeInQuart
             
@@ -135,7 +157,7 @@
     </script>
 </head>
 <body>
-    <div id="pageFrame">
+    <div>
         <img class="menuTick" src=tick.png>
         <div class="slidingMenu">             
             <ul class="slidingMenuItems">
@@ -146,6 +168,10 @@
                 <li data-bgc="DarkSlateGray">Alienware</li>
                 <li data-bgc="Purple">Studio XPS</li>
             </ul>
+        </div>
+
+        <div id="pageFrame">
+            <div id="pageFrameStripe"></div>
         </div>
     </div>
 </body>
