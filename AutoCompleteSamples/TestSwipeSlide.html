@@ -12,18 +12,19 @@
             width: 100%;
             height: 100%;
         }
-        
+
         #slideDivMain {
             display: block;
-        }
-
-        #slideDivBuffer {
-            display: none
+            background-color:blue;
+            background-image: url('http://p1.pichost.me/i/28/1514900.jpg');
         }
 
         #slideImgMain {
-            position:absolute;
-
+            position: absolute;
+            z-index: 100;
+        }
+        #slideImgBuffer {
+            z-index: -100;
         }
     </style>
 
@@ -39,6 +40,7 @@
         $(document).ready(function () {            
 
             $('#slideImgMain').on('dragstart', function (event) { event.preventDefault(); });
+            $('#slideImgBuffer').on('dragstart', function (event) { event.preventDefault(); });
 
             $('#slideImgMain').bind("swiperight", function () {
                 showSlide(1);
@@ -61,7 +63,8 @@
             }
 
             $('#slideImgMain').attr("src", images[currentImage]);
-            $('#slideDivMain').css("background-image", "url('" + images[nextImage] + "')");
+            $('#slideImgBuffer').attr("src", images[currentImage]);
+            //$('#slideDivMain').css("background-image", "url('" + images[nextImage] + "')");
 
             if( nextImage != currentImage) {
 
@@ -76,7 +79,7 @@
                         //isDragging = false;
 
                         $('#slideImgMain').attr("src", images[nextImage]);
-                        $('#slideImgMain').attr("src", images[nextImage]);
+                        $('#slideImgMain').css("left", "0px;");
                     }
                 });// easeInQuart
             }
@@ -90,8 +93,7 @@
     </script>
 </head>
 <body>
-    <div id="slideDivMain" class="slideDiv"><img id="slideImgMain" class="slideImg"></div>
-    <div id="slideDivBuffer" class="slideDiv"><img id="slideImgBuffer" class="slideImg"></div>
+    <div id="slideDivMain" class="slideDiv"><img id="slideImgBuffer" class="slideImg"><img id="slideImgMain" class="slideImg"></div>
 
     <!-- http://www.surftin.com/images/landscape-socialphy_333694.jpg -->   
     <!-- http://p1.pichost.me/i/28/1514900.jpg -->
